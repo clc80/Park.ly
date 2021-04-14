@@ -23,6 +23,8 @@ class ViewController: UIViewController {
         checkLocationAuthStatus()
         mapView.delegate = self
         directionsButton.isEnabled = false
+        
+        setupLongPress()
     }
     
     @IBAction func resetMapCenter(sender: RoundButton) {
@@ -42,7 +44,7 @@ class ViewController: UIViewController {
         } else {
             parkButton.setImage(#imageLiteral(resourceName: "parkCar"), for: .normal)
             parkedCarAnnotiation = nil
-            directionsButton.isEnabled = false 
+            directionsButton.isEnabled = false
         }
     }
 
@@ -87,7 +89,26 @@ extension ViewController: CustomUserLocDelegate {
     func userLocationUpdated(location: CLLocation) {
         centerMapOnUserLocation(coordinates: location.coordinate)
     }
+}
+
+extension ViewController {
+    func setupLongPress() {
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(gesture:)))
+        longPress.minimumPressDuration = 0.75
+        self.mapView.addGestureRecognizer(longPress)
+    }
     
-    
+    @objc func handleLongPress(gesture: UILongPressGestureRecognizer) {
+        mapView.removeAnnotations(mapView.annotations)
+        
+        if gesture.state == .ended {
+            let point = gesture.location(in: self.mapView)
+            let coordinate = self.mapView.convert(point, toCoordinateFrom: self.mapView)
+            setupAnnotation(coordinate: coordinate)
+            
+            directionsButton.isEnabled = true
+            parkButton.setImage(#imageLiteral(resourceName: "foundCar"), for: .normal)
+        }
+    }
 }
 
