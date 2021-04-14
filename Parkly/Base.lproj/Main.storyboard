@@ -51,6 +51,9 @@
                                             <constraint firstAttribute="height" constant="75" id="Uzo-Dt-HT9"/>
                                         </constraints>
                                         <state key="normal" image="parkCar"/>
+                                        <connections>
+                                            <action selector="parkButtonTappedWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="MbG-Z3-a65"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lBd-d1-Xk9" customClass="RoundButton" customModule="Parkly" customModuleProvider="target">
                                         <rect key="frame" x="141" y="12.5" width="50" height="50"/>
