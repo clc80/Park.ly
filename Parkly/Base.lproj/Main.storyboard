@@ -39,6 +39,9 @@
                                         <state key="normal" image="location" catalog="system">
                                             <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large" weight="semibold"/>
                                         </state>
+                                        <connections>
+                                            <action selector="resetMapCenterWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="TXy-8C-eTt"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kcm-RS-oKn" customClass="RoundButton" customModule="Parkly" customModuleProvider="target">
                                         <rect key="frame" x="58" y="0.0" width="75" height="75"/>

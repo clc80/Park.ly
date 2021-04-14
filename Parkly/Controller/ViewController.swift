@@ -19,6 +19,11 @@ class ViewController: UIViewController {
         checkLocationAuthStatus()
         mapView.delegate = self
     }
+    
+    @IBAction func resetMapCenter(sender: RoundButton) {
+        guard let coordinates = LocationService.instance.currentLocation else { return }
+        centerMapOnUserLocation(coordinates: coordinates)
+    }
 
 
 }
