@@ -12,6 +12,8 @@ import MapKit
 class ViewController: UIViewController {
     
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var parkButton: RoundButton!
+    @IBOutlet weak var directionsButton: RoundButton!
     
     var parkedCarAnnotiation: ParkingSpot?
 
@@ -20,6 +22,7 @@ class ViewController: UIViewController {
         
         checkLocationAuthStatus()
         mapView.delegate = self
+        directionsButton.isEnabled = false
     }
     
     @IBAction func resetMapCenter(sender: RoundButton) {
@@ -28,12 +31,18 @@ class ViewController: UIViewController {
     }
 
     @IBAction func parkButtonTapped(sender: RoundButton) {
-        if mapView.annotations.count == 1 {
+        mapView.removeAnnotations(mapView.annotations)
+        
+        if parkedCarAnnotiation == nil {
             guard let coordinates = LocationService.instance.currentLocation else { return }
             setupAnnotation(coordinate: coordinates)
+            parkButton.setImage(#imageLiteral(resourceName: "foundCar"), for: .normal)
+            directionsButton.isEnabled = true
             
         } else {
-            // TODO: handle removing annotations
+            parkButton.setImage(#imageLiteral(resourceName: "parkCar"), for: .normal)
+            parkedCarAnnotiation = nil
+            directionsButton.isEnabled = false 
         }
     }
 
