@@ -26,10 +26,24 @@ class ViewController: UIViewController {
 extension ViewController: MKMapViewDelegate {
     func checkLocationAuthStatus() {
         if LocationService.instance.locationManager.authorizationStatus == .authorizedWhenInUse {
-            self.mapView.showsUserLocation = true 
+            self.mapView.showsUserLocation = true
+            LocationService.instance.customUserLocDelgate = self
         } else {
             LocationService.instance.locationManager.requestWhenInUseAuthorization()
         }
     }
+    
+    func centerMapOnUserLocation(coordinates: CLLocationCoordinate2D) {
+        let region = MKCoordinateRegion(center: coordinates, latitudinalMeters: 1000, longitudinalMeters: 1000)
+        self.mapView.setRegion(region, animated: true)
+    }
+}
+
+extension ViewController: CustomUserLocDelegate {
+    func userLocationUpdated(location: CLLocation) {
+        centerMapOnUserLocation(coordinates: location.coordinate)
+    }
+    
+    
 }
 
