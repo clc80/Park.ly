@@ -66,6 +66,9 @@
                                         <state key="normal" image="car" catalog="system">
                                             <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large" weight="semibold"/>
                                         </state>
+                                        <connections>
+                                            <action selector="getDirectionsTappedWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3Qq-Hc-NCR"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
