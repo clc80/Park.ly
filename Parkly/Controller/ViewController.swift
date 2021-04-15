@@ -33,18 +33,18 @@ class ViewController: UIViewController {
     }
 
     @IBAction func parkButtonTapped(sender: RoundButton) {
-        mapView.removeAnnotations(mapView.annotations)
-        
+        removeOverlays()
+        guard let coordinates = LocationService.instance.currentLocation else { return }
         if parkedCarAnnotiation == nil {
-            guard let coordinates = LocationService.instance.currentLocation else { return }
             setupAnnotation(coordinate: coordinates)
             parkButton.setImage(#imageLiteral(resourceName: "foundCar"), for: .normal)
             directionsButton.isEnabled = true
-            
         } else {
             parkButton.setImage(#imageLiteral(resourceName: "parkCar"), for: .normal)
             parkedCarAnnotiation = nil
             directionsButton.isEnabled = false
+            removeOverlays()
+            centerMapOnUserLocation(coordinates: coordinates)
         }
     }
     
@@ -68,12 +68,12 @@ extension ViewController: MKMapViewDelegate {
     }
     
     func centerMapOnUserLocation(coordinates: CLLocationCoordinate2D) {
-        let region = MKCoordinateRegion(center: coordinates, latitudinalMeters: 1000, longitudinalMeters: 1000)
+        let region = MKCoordinateRegion(center: coordinates, latitudinalMeters: 500, longitudinalMeters: 500)
         self.mapView.setRegion(region, animated: true)
     }
     
     func setupAnnotation(coordinate: CLLocationCoordinate2D) {
-        parkedCarAnnotiation = ParkingSpot(title: "We parked here", subtitle: "Tap for directions", coordinate: coordinate)
+        parkedCarAnnotiation = ParkingSpot(coordinate: coordinate)
         mapView.addAnnotation(parkedCarAnnotiation!)
     }
     
@@ -89,6 +89,13 @@ extension ViewController: MKMapViewDelegate {
             return view
         }
         return nil
+    }
+    
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        guard let coordinates = LocationService.instance.currentLocation,
+              let parkedCar = parkedCarAnnotiation else { return }
+        getDirectionsToCar(userCoordinates: coordinates, parkedCarCoordinate: parkedCar.coordinate)
+        view.setSelected(false, animated: true)
     }
 }
 
@@ -106,9 +113,8 @@ extension ViewController {
     }
     
     @objc func handleLongPress(gesture: UILongPressGestureRecognizer) {
-        mapView.removeAnnotations(mapView.annotations)
-        
         if gesture.state == .ended {
+            removeOverlays()
             let point = gesture.location(in: self.mapView)
             let coordinate = self.mapView.convert(point, toCoordinateFrom: self.mapView)
             setupAnnotation(coordinate: coordinate)
@@ -121,6 +127,8 @@ extension ViewController {
 
 extension ViewController {
     func getDirectionsToCar(userCoordinates: CLLocationCoordinate2D, parkedCarCoordinate: CLLocationCoordinate2D) {
+        removeOverlays()
+        
         let request = MKDirections.Request()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: userCoordinates))
         request.destination = MKMapItem(placemark: MKPlacemark(coordinate: parkedCarCoordinate))
@@ -128,11 +136,16 @@ extension ViewController {
         
         let directions = MKDirections(request: request)
         
-        directions.calculate { (response, error) in
+        directions.calculate { [unowned self] (response, error) in
             guard let route = response?.routes.first else { return }
             self.mapView.addOverlay(route.polyline)
             
             self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, edgePadding: UIEdgeInsets(top: 200, left: 50, bottom: 50, right: 50), animated: true)
+            
+            for step in route.steps {
+                print(step.distance)
+                print(step.instructions)
+            }
         }
     }
     
@@ -143,6 +156,11 @@ extension ViewController {
         directionsRenderer.alpha = 0.85
         
         return directionsRenderer
+    }
+    
+    func removeOverlays() {
+        self.mapView.overlays.forEach({ self.mapView.removeOverlay($0) })
+        //self.mapView.removeAnnotations(mapView.annotations)
     }
 }
 
